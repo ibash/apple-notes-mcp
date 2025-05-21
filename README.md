@@ -2,6 +2,8 @@
 
 An MCP server that connects with your Apple Notes on macOS.
 
+![Claude Usage Example](./claude-usage-example.png)
+
 ## Supported Tools
 
 -   `notes-get-folders`: Get all folders.
