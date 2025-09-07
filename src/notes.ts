@@ -35,13 +35,11 @@ export async function createNote(
         });
 
         folder.notes.push(note);
-        const n = note.properties();
-
         JSON.stringify({
-            id: n.id,
-            name: n.name,
-            creationDate: n.creationDate,
-            modificationDate: n.modificationDate
+            id: note.id(),
+            name: note.name(),
+            creationDate: note.creationDate(),
+            modificationDate: note.modificationDate()
         });
     `);
 
@@ -54,11 +52,9 @@ export async function getFolders(): Promise<Folder[]> {
         const folders = Notes.folders();
 
         JSON.stringify(folders.map(folder => {
-            const f = folder.properties();
-
             return {
-                id: f.id,
-                name: f.name
+                id: folder.id(),
+                name: folder.name()
             };
         }));
     `);
@@ -69,6 +65,8 @@ export async function getFolders(): Promise<Folder[]> {
 export async function getNotes(
     folderId: string
 ): Promise<Omit<Note, "plaintext">[]> {
+    // Use individual property access instead of .properties()
+    // to avoid error -1741 on iCloud-synced notes
     const result = await executeOSAScript(`
         const Notes = Application('Notes');
         
@@ -76,15 +74,13 @@ export async function getNotes(
         const notes = targetFolder.notes();
 
         JSON.stringify(notes.map(n => {
-            const p = n.properties();
-
             return {
-                id: p.id,
-                name: p.name,
-                creationDate: p.creationDate,
-                modificationDate: p.modificationDate,
+                id: n.id(),
+                name: n.name(),
+                creationDate: n.creationDate(),
+                modificationDate: n.modificationDate(),
             };
-        }))
+        }));
     `);
 
     const notes = JSON.parse(result);
@@ -93,18 +89,17 @@ export async function getNotes(
 }
 
 export async function getNoteById(id: string): Promise<Note> {
+    // Use individual property access to avoid error -1741 on iCloud-synced notes
     const result = await executeOSAScript(`
         const Notes = Application('Notes');
         const note = Notes.notes.byId('${id}');
 
-        const n = note.properties();
-
         JSON.stringify({
-            id: n.id,
-            name: n.name,
-            plaintext: n.plaintext,
-            creationDate: n.creationDate,
-            modificationDate: n.modificationDate
+            id: note.id(),
+            name: note.name(),
+            plaintext: note.plaintext(),
+            creationDate: note.creationDate(),
+            modificationDate: note.modificationDate()
         });
     `);
 
@@ -112,20 +107,19 @@ export async function getNoteById(id: string): Promise<Note> {
 }
 
 export async function getNoteByTitle(title: string): Promise<Note> {
+    // Use individual property access to avoid error -1741 on iCloud-synced notes
     const result = await executeOSAScript(`
         const Notes = Application('Notes');
         
         const notes = Notes.notes.whose({name: '${title}'});        
         const note = notes[0];
 
-        const n = note.properties();
-
         JSON.stringify({
-            id: n.id,
-            name: n.name,
-            plaintext: n.plaintext,
-            creationDate: n.creationDate,
-            modificationDate: n.modificationDate
+            id: note.id(),
+            name: note.name(),
+            plaintext: note.plaintext(),
+            creationDate: note.creationDate(),
+            modificationDate: note.modificationDate()
         });
     `);
 
